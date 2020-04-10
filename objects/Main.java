@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 
 
 public class Main{
@@ -70,6 +71,7 @@ public class Main{
     			
     			if( result == 4) {
     				state = 0;
+    				continue;
     			}
     			else if (result == 1) {
     				Payment payment = cp.cash(totalPrice);
@@ -130,7 +132,6 @@ public class Main{
     		
     	}
     	
-    	
     }
 	
 }
@@ -181,7 +182,7 @@ class ConsolePrint {
     	
     	String input = sc.next();
     	
-    	while(input.equals("1") && input.equals("2") && input.equals("3") && input.equals("4")) {
+    	while(input.equals("1") && input.equals("2") && input.equals("3") && input.equals("4") && input.equals("5")) {
     		System.out.println("잘못 선택하셨습니다. 다시 선택해주세요.");
     		input = sc.next();
     	}
@@ -218,8 +219,16 @@ class ConsolePrint {
 				else {
 					System.out.println("선택하신 제품의 번호가 유효하지 않습니다. 다시 입력해주세요. : ");
 				}
-				
-				itemid = sc.nextInt();
+				while(true) {
+					try {
+						itemid = sc.nextInt();
+						break;
+					}
+					catch( InputMismatchException e) {
+						sc = new Scanner(System.in);
+						System.out.println("번호를 입력해주세요!");
+					}
+				}
 				
 				if(itemid == -1) {
 					Items = post.getSelectedItem(ItemList);
@@ -239,7 +248,23 @@ class ConsolePrint {
 					System.out.println("제품의 갯수가 재고보다 많습니다. 다시 입력해주세요. : ");
 				}
 				
-				numOfitem = sc.nextInt();
+				while(true) {
+					try {
+						numOfitem = sc.nextInt();
+						if (numOfitem > 0) {
+							break;
+						}
+						else {
+							System.out.println("1 이상의 숫자를 입력해주세요.");
+						}
+						
+					}
+					catch( InputMismatchException e) {
+						System.out.println("숫자를 입력해주세요!");
+						sc = new Scanner(System.in);
+					}
+				}
+				
 				int remain = post.getRemain(itemid);
 				if (numOfitem <= remain ) {
 					checkremain = true;
@@ -263,6 +288,7 @@ class ConsolePrint {
 	
 	// 선택된 메뉴 화면
 	public int getSelectedItem(ArrayList<Item> selected, int totalPrice ) {
+		int input = 0;
 		System.out.println("선택하신 제품들 입니다.");
 		System.out.println("=============================================================");
 		for(Item item : selected) {
@@ -274,20 +300,55 @@ class ConsolePrint {
 		System.out.println("1. 결제하기");
 		System.out.println("2. 장바구니 비우기");
 		System.out.println("3. 나가기");
-		int input = sc.nextInt();
 		
-		while(input != 1 && input != 2 && input != 3) {
-			System.out.println("입력이 잘못되었습니다. 다시 입력해주세요.");
-			input = sc.nextInt();
+		while(true) {
+			try {
+				input = sc.nextInt();
+				if(input != 1 && input != 2 && input != 3) {
+					System.out.println("입력이 잘못되었습니다. 다시 입력해주세요.");
+				}
+				else {
+					break;
+				}
+				
+			}
+			catch( InputMismatchException e) {
+				sc = new Scanner(System.in);
+				System.out.println("숫자를 입력해주세요!");
+				
+			}
+			
+			
 		}
+		
+		
 		
 		return input;
 	}
 	
 	// 결제화면
 	public int paymentView(ArrayList<Item> selected, int totalPrice) {
-
 		int input = 0;
+		
+		if (totalPrice == 0) {
+			System.out.println("결제하실 품목이 없습니다.");
+			System.out.println("1. 나가기");
+			
+			while(true) {
+				
+				try {
+					input = sc.nextInt();
+					break;
+				}
+				catch( InputMismatchException e) {
+					sc = new Scanner(System.in);
+					System.out.println("숫자를 입력해주세요");
+				}
+			}
+			
+			return 4;
+		}
+		
 		
 		System.out.println("결제하실 목록 입니다.");
 		System.out.println("=============================================================");
@@ -302,12 +363,25 @@ class ConsolePrint {
 		System.out.println("3. 쿠폰");
 		System.out.println("4. 나가기");
 		
-		input = sc.nextInt();
 		
-		while(input != 1 && input != 2 && input != 3 && input != 4) {
-			System.out.println("입력이 잘못되었습니다. 다시 입력해주세요.");
-			input = sc.nextInt();
+		while(true) {
+			try {
+				input = sc.nextInt();
+				if(input != 1 && input != 2 && input != 3 && input != 4) {
+					System.out.println("입력이 잘못되었습니다. 다시 입력해주세요.");
+				}
+				else {
+					break;
+				}
+			}
+			catch ( InputMismatchException e) {
+				System.out.println("숫자를 입력해주세요!");
+				sc = new Scanner(System.in);
+			}
 		}
+		
+		
+		
 		
 		return input;
 	}
@@ -322,12 +396,14 @@ class ConsolePrint {
 		boolean stop = false;
 		int gift_num = 0;
 		while(!stop) {
+			
 			try {
 				gift_num = sc.nextInt();
 				stop = true;
 			}
-			catch(Exception e) {
+			catch( InputMismatchException e) {
 				System.out.println("숫자를 입력해 주십시오.");
+				sc = new Scanner(System.in);
 			}
 			
 			if (stop && gift_num == -1) {
@@ -339,7 +415,10 @@ class ConsolePrint {
 					System.out.println("쿠폰 번호 또는 기간이 유효하지 않습니다. 번호를 다시 입력해주십시오.");
 					stop = false;
 				}
-				p = new Payment("coupon", price);
+				else {
+					p = new Payment("coupon", price);
+				}
+				
 			}
 		}
 	
@@ -378,6 +457,7 @@ class ConsolePrint {
 			}
 			catch(Exception e) {
 				System.out.println("금액을 숫자로 입력해주십시오.");
+				sc = new Scanner(System.in);
 			}
 			
 			if (stop && totalPrice < payment) {

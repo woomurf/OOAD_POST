@@ -161,18 +161,21 @@ class Post {
     	return totalPrice;
     }
     
-    // 쿠폰 번호 / 기간이 유효한지 검사하고, 유효하다면 제품의 가격을 유효하지 않다면 -1을 리턴 
+    // 쿠폰 번호  기간이 유효한지 검사하고, 유효하다면 제품의 가격을 유효하지 않다면 -1을 리턴 
     public int checkCoupon(int number) {
     	
     	try {
-    		ResultSet rs = state.executeQuery(String.format("SELECT * FROM coupon WHERE number = %d", number));
+    		ResultSet rs = state.executeQuery(String.format("SELECT * FROM coupon WHERE coupon_number = %d", number));
     		if (rs.next()) {
+    			int id = rs.getInt("id");
     			int price = rs.getInt("price");
     			java.sql.Date date = rs.getDate("expiration_date");
+    			int used = rs.getInt("used");
     			Date _date = new Date(date.getTime());
     			Date now = new Date();
     			
-    			if (now.compareTo(_date) == -1) {
+    			if (now.compareTo(_date) == -1 && used == 0) {
+    				state.executeUpdate(String.format("UPDATE coupon SET used = 1 WHERE id = %d", id));
     				return price;
     			}
     			else {
